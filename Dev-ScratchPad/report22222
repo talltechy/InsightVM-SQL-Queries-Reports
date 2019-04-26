@@ -1,0 +1,9 @@
+SELECT dv.nexpose_id AS vulnerability_name, dv.title, dv.severity
+
+FROM fact_asset_vulnerability_finding fav
+
+JOIN fact_asset_vulnerability_age fava USING(asset_id, vulnerability_id)
+JOIN dim_vulnerability dv USING (vulnerability_id)
+
+GROUP BY dv.nexpose_id, dv.severity, dv.exploits, dv.malware_kits, dv.title
+ORDER BY earliest_occurence
