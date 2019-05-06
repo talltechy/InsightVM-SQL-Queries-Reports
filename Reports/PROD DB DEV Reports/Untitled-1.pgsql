@@ -69,6 +69,8 @@ SELECT dfa.IP
 ,dfa.total_asset_severe AS "Total Asset Severe"
 ,dfa.total_asset_critical AS "Total Asset Critical"
 ,dfa.total_asset_vulnerabilities AS "Total Asset Vulnerabilities"
+,vr.vulnerability_id AS "Vulnerability ID"
+,vr.nexpose_id AS "Nexpose ID"
 ,vr.title AS "Vulnerability Title"
 ,round(age(favi.date, 'days')::numeric, 0) AS "Age In Days"
 ,   (CASE

@@ -71,13 +71,22 @@ SELECT dfa.IP
 ,vr.vulnerability_id AS "Vulnerability ID"
 ,vr.nexpose_id AS "Nexpose ID"
 ,vr.title AS "Vulnerability Title"
-,round(fava.age_in_days::numeric, 0) AS "Age In Days"
+,round(fava.age_in_days::numeric, 0) AS "fava-Age In Days"
 ,   (CASE
 		WHEN round(fava.age_in_days::numeric, 0) < 30 THEN '<30' 
         WHEN round(fava.age_in_days::numeric, 0) > 30 and round(fava.age_in_days::numeric, 0) <= 60 THEN '30-60'
         WHEN round(fava.age_in_days::numeric, 0) > 60 and round(fava.age_in_days::numeric, 0) <= 90 THEN '61-90'
     ELSE '90+'
-    END) Aging
+    END) favaAging
+,round(age(favi.date, 'days')::numeric, 0) AS "favi-Age In Days"
+,   (CASE
+		WHEN round(age(favi.date, 'days')::numeric, 0) < 30 THEN '<30' 
+        WHEN round(age(favi.date, 'days')::numeric, 0) > 30 and round(age(favi.date, 'days')::numeric, 0) <= 60 THEN '30-60'
+        WHEN round(age(favi.date, 'days')::numeric, 0) > 60 and round(age(favi.date, 'days')::numeric, 0) <= 90 THEN '61-90'
+    ELSE '90+'
+    END) favidate
+,fava.first_discovered AS "fava-first_discovered"
+,fava.most_recently_discovered AS "fava-most_recently_discovered"
 ,vr.severity AS "Vulnerability Severity"
 ,round(vr.vulnerability_risk::numeric, 0) AS "Vulnerability Risk"
 ,htmltotext(vr.description) AS "Vulnerability Description"
@@ -93,13 +102,12 @@ SELECT dfa.IP
 --end SELECT
 --begin FROM/JOIN
 FROM fact_asset_vulnerability_instance favi
-    LEFT OUTER JOIN fact_asset_vulnerability_age fava ON favi.vulnerability_id = fava.vulnerability_id AND favi.asset_id = fava.asset_id
-    LEFT OUTER JOIN vuln_references vr ON vr.vulnerability_id = favi.vulnerability_id
-    LEFT OUTER JOIN dfa_assets dfa ON dfa.asset_id = favi.asset_id
+    LEFT JOIN fact_asset_vulnerability_age fava ON favi.vulnerability_id = fava.vulnerability_id AND favi.asset_id = fava.asset_id
+    LEFT JOIN vuln_references vr ON vr.vulnerability_id = favi.vulnerability_id
+    LEFT JOIN dfa_assets dfa ON dfa.asset_id = favi.asset_id
     LEFT OUTER JOIN custom_tags ct ON favi.asset_id = ct.asset_id
     LEFT OUTER JOIN location_tags lt ON favi.asset_id = lt.asset_id
     LEFT OUTER JOIN owner_tags ot ON favi.asset_id = ot.asset_id
     LEFT OUTER JOIN criticality_tags crt ON favi.asset_id = crt.asset_id
 --end FROM/JOIN
-WHERE dfa.asset_group_id = 2 AND vr.severity = 'Critical'
 ORDER BY dfa.Hostname, dfa.IP, vr.nexpose_id
