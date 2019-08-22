@@ -1,0 +1,9 @@
+component_depth: 1
+languages:
+- name: PLpgSQL
+  production:
+    include:
+      - .*/Reports/.*\.pgsql
+  test:
+    include:
+      - .*/Dev-ScratchPad/.*\.pgsql
