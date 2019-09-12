@@ -1,0 +1,31 @@
+SELECT
+  dve.vulnerability_exception_id,
+  dve.vulnerability_id,
+  dv.nexpose_id,
+  dv.title,
+  round(dv.risk_score :: numeric, 0) AS risk,
+  dv.severity,
+  dv.severity_score,
+  dve.scope,
+  dve.scope_description,
+  dag.asset_group_id,
+  dag.name AS asset_group_name,
+  dag.description,
+  dve.reason,
+  dve.additional_comments,
+  dve.review_comment -- use the date() command to convert timestamps to date only format
+,
+  date(dve.submitted_date) AS submitted_date,
+  date(dve.review_date) AS review_date,
+  date(dve.expiration_date) AS expiration_date,
+  dve.submitted_by,
+  dve.reviewed_by,
+  dve.status
+FROM
+  dim_vulnerability_exception dve
+  JOIN dim_vulnerability dv ON dv.vulnerability_id = dve.vulnerability_id
+  LEFT JOIN dim_asset_group dag ON dag.asset_group_id = dve.group_id -- removes any vulnerability exceptions with the status of Recalled
+WHERE
+  dve.status NOT LIKE 'Recalled' -- removed any vulnerability exceptions that expired before NOW aka when you ran the report
+  AND dve.expiration_date > now();
+  
