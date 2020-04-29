@@ -5,6 +5,8 @@
 # ini
 ini/*
 test/*
+# vscode
+.vscode/*
 
 ### Backup ###
 *.bak
