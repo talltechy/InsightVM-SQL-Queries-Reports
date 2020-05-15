@@ -1,35 +1,18 @@
-WITH assets_vulns AS (
-SELECT
-fasv.asset_id,
-fasv.vulnerability_id,
-FROM
-fact_asset_scan_vulnerability_instance fasv
-JOIN (
-SELECT
-asset_id,
-FROM
-dim_asset
-) s ON s.asset_id = fasv.asset_id
-AND (
-fasv.scan_id = s.current_scan
-)
-GROUP BY
-fasv.asset_id,
-fasv.vulnerability_id,
---END assets_vulns
-new_vulns AS (
-SELECT
-av.asset_id,
-av.vulnerability_id,
-COUNT (av.vulnerability_id) AS new_vulns
-FROM
-assets_vulns AS av
-GROUP BY
-av.asset_id,
-av.vulnerability_id
-),
---END new_vulns
-JOIN dim_asset AS da2 ON da2.asset_id = nv.asset_id
-JOIN dim_vulnerability dv2 ON dv2.vulnerability_id = nv.vulnerability_id
-LEFT JOIN vuln_exploit_count vec ON vec.vulnerability_id = nv.vulnerability_id
-ORDER BY status DESC, ip_address, hostname, title
+SELECT dve.vulnerability_exception_id
+,dve.vulnerability_id
+,dv.title
+,dv.severity
+,round(dv.riskscore::numeric, 0) AS risk
+,dve.scope_id
+,dve.reason_id
+,dve.status_id
+,dve.group_id
+,dve.additional_comments
+,dve.review_comment
+,dve.submitted_date
+,dve.review_date
+,dve.expiration_date
+,dve.submitted_by
+,dve.reviewed_by
+FROM dim_vulnerability_exception dve
+JOIN dim_vulnerability dv ON dv.vulnerability_id = dve.vulnerability_id
