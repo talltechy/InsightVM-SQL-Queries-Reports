@@ -17,7 +17,7 @@ WITH
     )
 SELECT vfa.asset_id
     ,am.ip_address
-    -- This first grabs the hostname from dim_asset, runs a regex against it to remove any DNS junk like .forchtgroup.us
+    -- This first grabs the hostname from dim_asset, runs a regex against it to remove any DNS junk like .exampledomain.tld
     -- Then it uses the UPPER command to make the entire hostname uppercase for easier sorting and comparing
     ,UPPER(regexp_replace(am.host_name, '([\.][\w\.]+)', '', 'g')) AS "Hostname"
     ,vfa.vulnerability_id
